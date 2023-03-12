@@ -69,36 +69,43 @@ export const loginController = async (req, res) => {
         error,
       });
     }
+
     // check user
-    const user = await User.findOne({ email: req.body.email });
+    const user = await users.findOne({ email: req.body.email });
     if (!user) {
       return res.status(404).send({
         success: false,
         message: "Emai is not Registered",
       });
     }
+
     const match = await comparePassword(password, user.password);
     if (!match) {
       return res.status(200).send({
         success: false,
         message: "Password is Invalid",
       });
-
-      const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY, {
-        expiresIn: "7h",
-      });
-      return res.status(200).send({
-        success: true,
-        message: "User logged in successfully",
-        user: {
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          address: user.address,
-        },
-        token,
-      });
     }
+
+    const token = jwt.sign(
+      { _id: user._id },
+      process.env.JWT_SECRET || JJFDHFH75458,
+      {
+        expiresIn: "7h",
+      }
+    );
+
+    return res.status(200).send({
+      success: true,
+      message: "User logged in successfully",
+      user: {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+      },
+      token,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send({
